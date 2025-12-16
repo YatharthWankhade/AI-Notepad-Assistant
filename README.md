@@ -56,20 +56,3 @@ npm install
 npm start
 ```
 Access the app at `http://localhost:4200`.
-
-### Daily Contribution Automation
-To update 3 random files daily (for activity simulation):
-```bash
-./daily_activity.sh
-```
-
----
-
-## 📸 Screenshots
-
-![Smart Grouping](https://github.com/YourUsername/ai-notepad-assistant/assets/placeholder.png)
-
----
-
-## 📄 License
-MIT License.
