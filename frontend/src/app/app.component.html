@@ -1,0 +1,72 @@
+<div class="container">
+    <!-- Dynamic Tab Bar -->
+    <div class="tab-bar">
+        <div class="tab" *ngFor="let tab of tabs" [class.active]="tab.id === activeTabId" (click)="selectTab(tab.id)">
+
+            <!-- Editable Title -->
+            <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)">
+                {{ tab.title }}
+            </span>
+            <input *ngIf="tab.isEditingTitle" class="tab-rename-input" [(ngModel)]="tab.title"
+                (blur)="finishRenaming(tab)" (keyup.enter)="finishRenaming(tab)" autoFocus>
+
+            <!-- Close Button -->
+            <button class="close-tab-btn" (click)="closeTab($event, tab.id)" title="Close Tab">
+                ×
+            </button>
+        </div>
+
+        <!-- Add New Tab -->
+        <button class="add-tab-btn" (click)="addTab()" title="New Tab">+</button>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-content" *ngIf="activeTab">
+
+        <!-- Left Header: Input -->
+        <header class="left-header">
+            <div>
+                <h1>Raw Notes</h1>
+                <p>Dump your thoughts here...</p>
+            </div>
+        </header>
+
+        <!-- Right Header: Output -->
+        <header class="right-header">
+            <div>
+                <h1>Smart Actions</h1>
+                <p *ngIf="!isLoading">Structured & Grouped</p>
+                <p *ngIf="isLoading" class="loading-indicator">Analyzing with Gemini...</p>
+            </div>
+        </header>
+
+        <!-- Editor Pane -->
+        <div class="editor-pane">
+            <textarea [(ngModel)]="activeTab.content" (ngModelChange)="onNoteChange($event)"
+                placeholder="- Buy milk&#10;- Call Mom&#10;- Schedule dentist appointment..." spellcheck="false">
+      </textarea>
+        </div>
+
+        <!-- Output Pane -->
+        <div class="output-pane">
+            <!-- Empty State -->
+            <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
+                <p>Start typing to see AI magic happen ✨</p>
+            </div>
+
+            <!-- Results List -->
+            <div *ngFor="let result of activeTab.results" class="note-card">
+                <div class="card-header">
+                    <h3>{{ result.title }}</h3>
+                    <span class="original-text-preview">{{ result.originalPoint }}</span>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li *ngFor="let step of result.solution">{{ step }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
