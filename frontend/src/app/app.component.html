@@ -1,72 +1,179 @@
-<div class="container">
-    <!-- Dynamic Tab Bar -->
-    <div class="tab-bar">
-        <div class="tab" *ngFor="let tab of tabs" [class.active]="tab.id === activeTabId" (click)="selectTab(tab.id)">
+<div class="app-container">
+    <!-- Top Navigation Bar -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                        fill="white" />
+                </svg>
+            </div>
+            <div class="brand-text">
+                <h1>AI Notepad Assistant</h1>
+                <p>Transform your ideas into actionable plans</p>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <!-- Tab Strip -->
+            <div class="tab-strip">
+                <div class="tab-item" *ngFor="let tab of tabs" [class.active]="tab.id === activeTabId"
+                    (click)="selectTab(tab.id)">
 
-            <!-- Editable Title -->
-            <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)">
-                {{ tab.title }}
-            </span>
-            <input *ngIf="tab.isEditingTitle" class="tab-rename-input" [(ngModel)]="tab.title"
-                (blur)="finishRenaming(tab)" (keyup.enter)="finishRenaming(tab)" autoFocus>
+                    <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)" class="tab-title">
+                        {{ tab.title }}
+                    </span>
+                    <input *ngIf="tab.isEditingTitle" class="tab-rename-input" [(ngModel)]="tab.title"
+                        (blur)="finishRenaming(tab)" (keyup.enter)="finishRenaming(tab)" autoFocus>
 
-            <!-- Close Button -->
-            <button class="close-tab-btn" (click)="closeTab($event, tab.id)" title="Close Tab">
-                ×
+                    <button class="close-tab-btn" *ngIf="tabs.length > 1" (click)="closeTab($event, tab.id)"
+                        title="Close Note">
+                        ×
+                    </button>
+                </div>
+                <button class="add-tab-btn" (click)="addTab()" title="New Note">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Note
+                </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="icon-btn" title="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+            </button>
+            <button class="icon-btn" title="Help">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
             </button>
         </div>
+    </nav>
 
-        <!-- Add New Tab -->
-        <button class="add-tab-btn" (click)="addTab()" title="New Tab">+</button>
-    </div>
+    <!-- Main Content Area -->
+    <main class="main-grid" *ngIf="activeTab">
 
-    <!-- Main Workspace -->
-    <div class="main-content" *ngIf="activeTab">
-
-        <!-- Left Header: Input -->
-        <header class="left-header">
-            <div>
-                <h1>Raw Notes</h1>
-                <p>Dump your thoughts here...</p>
-            </div>
-        </header>
-
-        <!-- Right Header: Output -->
-        <header class="right-header">
-            <div>
-                <h1>Smart Actions</h1>
-                <p *ngIf="!isLoading">Structured & Grouped</p>
-                <p *ngIf="isLoading" class="loading-indicator">Analyzing with Gemini...</p>
-            </div>
-        </header>
-
-        <!-- Editor Pane -->
-        <div class="editor-pane">
-            <textarea [(ngModel)]="activeTab.content" (ngModelChange)="onNoteChange($event)"
-                placeholder="- Buy milk&#10;- Call Mom&#10;- Schedule dentist appointment..." spellcheck="false">
-      </textarea>
-        </div>
-
-        <!-- Output Pane -->
-        <div class="output-pane">
-            <!-- Empty State -->
-            <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
-                <p>Start typing to see AI magic happen ✨</p>
-            </div>
-
-            <!-- Results List -->
-            <div *ngFor="let result of activeTab.results" class="note-card">
-                <div class="card-header">
-                    <h3>{{ result.title }}</h3>
-                    <span class="original-text-preview">{{ result.originalPoint }}</span>
+        <!-- Left Column: Your Notes -->
+        <section class="section-card input-section">
+            <div class="section-header">
+                <div class="section-icon red-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                        <path d="M2 2l7.586 7.586" />
+                        <circle cx="11" cy="11" r="2" />
+                    </svg>
                 </div>
-                <div class="card-body">
-                    <ul>
-                        <li *ngFor="let step of result.solution">{{ step }}</li>
-                    </ul>
+                <div>
+                    <h2>Your Notes</h2>
+                    <p>Write your tasks and ideas using bullet points (•) and watch AI transform them.</p>
                 </div>
             </div>
-        </div>
 
-    </div>
+            <div class="editor-container">
+                <textarea [(ngModel)]="activeTab.content" (ngModelChange)="onNoteChange($event)"
+                    placeholder="• Fix leaky bathroom faucet&#10;• Plan birthday party for mom&#10;• Learn Spanish basics&#10;• Organize garage this weekend..."
+                    spellcheck="false">
+                </textarea>
+            </div>
+        </section>
+
+        <!-- Right Column: AI Solutions -->
+        <section class="section-card output-section">
+            <div class="section-header">
+                <div class="section-icon purple-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2>AI Solutions</h2>
+                    <p>Smart, personalized action plans generated just for you.</p>
+                </div>
+            </div>
+
+            <div class="results-container">
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Generating solutions...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
+                    <p>Start typing notes to see AI suggestions here.</p>
+                </div>
+
+                <!-- Result Cards -->
+                <div *ngFor="let result of activeTab.results" class="solution-card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <!-- Helper logic to pick icon based on simple keywords could go here, using generic tool icon for now -->
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path
+                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                </path>
+                            </svg>
+                        </div>
+                        <div class="card-title-lockup">
+                            <h3>{{ result.title }}</h3>
+                            <span class="actionable-steps">
+                                {{ result.solution.length }} actionable steps
+                            </span>
+                        </div>
+                        <div class="card-actions">
+                            <span class="badge high-priority">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                                </svg>
+                                HIGH
+                            </span>
+                        </div>
+                        <div class="card-controls">
+                            <button class="icon-btn-sm" title="Copy">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <button class="icon-btn-sm" title="Expand">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <ul>
+                            <li *ngFor="let step of result.solution">
+                                <span class="bullet-point"></span>
+                                {{ step }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
