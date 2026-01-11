@@ -1,13 +1,3 @@
-package com.notepad.ai.controller;
-
-import com.notepad.ai.model.NoteRequest;
-import com.notepad.ai.model.NoteResponse;
-import com.notepad.ai.service.NoteService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 package com.notepad.ai.controller;
 
@@ -30,7 +20,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class NoteController {
 
     private final NoteService noteService;
@@ -43,8 +32,9 @@ public class NoteController {
         }
 
         User user = getCurrentUser();
-        // If user is null (Guest), analyze but don't save
-        return ResponseEntity.ok(noteService.analyzeAndSaveNotes(request.getContent(), user));
+        System.out.println("Analyze Request from: " + (user != null ? user.getUsername() : "Guest"));
+        // If user is null (Guest), analyze but don't save. If ID provided, treat as update.
+        return ResponseEntity.ok(noteService.analyzeAndSaveNotes(request.getId(), request.getContent(), user));
     }
 
     @GetMapping
