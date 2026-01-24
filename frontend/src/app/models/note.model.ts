@@ -1,4 +1,5 @@
 export interface NoteRequest {
+    id?: number;
     content: string;
 }
 
