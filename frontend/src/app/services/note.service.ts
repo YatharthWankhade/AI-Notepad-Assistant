@@ -11,8 +11,12 @@ export class NoteService {
 
     constructor(private http: HttpClient) { }
 
-    analyzeNotes(content: string): Observable<NoteResponse[]> {
-        const request: NoteRequest = { content };
+    analyzeNotes(content: string, id?: number): Observable<NoteResponse[]> {
+        const request: NoteRequest = { content, id };
         return this.http.post<NoteResponse[]>(`${this.apiUrl}/analyze`, request);
+    }
+
+    getUserNotes(): Observable<any[]> {
+        return this.http.get<any[]>(this.apiUrl);
     }
 }
