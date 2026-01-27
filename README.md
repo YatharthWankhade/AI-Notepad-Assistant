@@ -5,7 +5,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)](https://www.docker.com/)
 
-A smart, AI-powered notepad application that transforms your rough bullet points into structured, actionable tasks. Now **Production Ready** with secure authentication, cloud sync, and a guest mode for quick access.
+A smart, AI-powered notepad application that transforms your rough bullet points into structured, actionable tasks. Now featuring a **Premium Modern UI** with secure authentication, cloud sync, and hybrid response layout.
 
 ![App Screenshot](https://via.placeholder.com/800x450?text=AI+Notepad+Dashboard)
 
@@ -18,16 +18,17 @@ A smart, AI-powered notepad application that transforms your rough bullet points
 - **Actionable Plans**: Automatically generates titles and step-by-step solutions for each group.
 - **Powered by Gemini**: Uses Google's Gemini 1.5 Flash model for lightning-fast analysis.
 
-### � Secure Authentication & Sync
+### 🎨 Premium UI/UX
+- **Hybrid Dynamic Layout**: Smart scrolling behavior that adapts to your content and screen size. Page scrolls naturally on mobile, while content boxes scroll internally on desktop when full.
+- **Dark Mode**: Fully supported dark theme with smooth transitions and persistent preference.
+- **Glassmorphism Design**: Modern frosted glass effects, gradients, and polished micro-interactions.
+- **Advanced Editor**: Real-time word/character counts, resizable textarea, and clear-formatting tools.
+
+### 🔐 Secure Authentication & Sync
 - **User Accounts**: Sign up and log in to save your notes securely in the database.
 - **Cloud Sync**: Access your notes history from any device when logged in.
 - **Guest Mode**: Use the full power of AI analysis instantly without creating an account (Data not saved).
 - **JWT Security**: Stateless, secure authentication using JSON Web Tokens.
-
-### � Modern UI/UX
-- **Multi-Tab Interface**: Work on multiple ideas simultaneously.
-- **Split View**: Compose on the left, view AI insights on the right.
-- **Real-time Feedback**: Instant analysis with loading states and polished animations.
 
 ---
 
@@ -35,7 +36,7 @@ A smart, AI-powered notepad application that transforms your rough bullet points
 
 - **Backend**: Java 21, Spring Boot 3, Spring Security (JWT), Spring Data JPA.
 - **Database**: PostgreSQL 16 (Containerized via Docker).
-- **Frontend**: Angular 18 (Standalone Components), RxJS, TypeScript.
+- **Frontend**: Angular 18 (Standalone Components), RxJS, TypeScript, Modern CSS3.
 - **AI**: Google Gemini API.
 
 ---
