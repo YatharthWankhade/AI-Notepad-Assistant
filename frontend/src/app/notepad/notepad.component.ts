@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
 import { NoteService } from '../services/note.service';
 import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
+import { ThemeService } from '../services/theme.service';
+import { Router, RouterModule } from '@angular/router';
 import { NoteResponse } from '../models/note.model';
 
 interface NoteTab {
@@ -14,12 +15,13 @@ interface NoteTab {
   content: string;
   results: NoteResponse[];
   isEditingTitle: boolean;
+  expandedCards: Set<number>;
 }
 
 @Component({
   selector: 'app-notepad',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './notepad.component.html',
   styleUrls: ['./notepad.component.css']
 })
@@ -28,13 +30,16 @@ export class NotepadComponent implements OnInit {
   activeTabId: number = 0;
   isLoading: boolean = false;
   user: any = null;
+  isDarkMode: boolean = false;
+  showCommandPalette: boolean = false;
 
   private noteUpdateSubject = new Subject<{ id: number, content: string }>();
 
   constructor(
     private noteService: NoteService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    public themeService: ThemeService
   ) {
     this.addTab();
   }
@@ -46,6 +51,9 @@ export class NotepadComponent implements OnInit {
   ngOnInit() {
     this.user = this.authService.getCurrentUser();
     this.checkUserNotes();
+    this.themeService.darkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
 
     this.noteUpdateSubject.pipe(
       debounceTime(1500),
@@ -92,7 +100,8 @@ export class NotepadComponent implements OnInit {
               title: n.title,
               content: n.content,
               results: n.aiResponseJson ? JSON.parse(n.aiResponseJson) : [],
-              isEditingTitle: false
+              isEditingTitle: false,
+              expandedCards: new Set<number>()
             }));
             this.activeTabId = this.tabs[0].id;
           } else {
@@ -128,7 +137,8 @@ export class NotepadComponent implements OnInit {
       title: `Note ${this.tabs.length + 1}`,
       content: '',
       results: [],
-      isEditingTitle: false
+      isEditingTitle: false,
+      expandedCards: new Set<number>()
     });
     this.activeTabId = newId;
   }
@@ -160,6 +170,96 @@ export class NotepadComponent implements OnInit {
 
   logout() {
     this.authService.logout();
+    this.user = null;
     this.router.navigate(['/']);
+  }
+
+  // Dark Mode Toggle
+  toggleDarkMode(): void {
+    this.themeService.toggleTheme();
+  }
+
+  // Word and Character Count
+  getWordCount(): number {
+    if (!this.activeTab?.content) return 0;
+    return this.activeTab.content.trim().split(/\s+/).filter(word => word.length > 0).length;
+  }
+
+  getCharCount(): number {
+    return this.activeTab?.content?.length || 0;
+  }
+
+  // Copy to Clipboard
+  async copyToClipboard(text: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }
+
+  copySolution(result: NoteResponse): void {
+    const text = `${result.title}\n\n${result.solution.join('\n')}`;
+    this.copyToClipboard(text);
+  }
+
+  // Card Expansion
+  toggleCardExpansion(cardIndex: number): void {
+    if (!this.activeTab) return;
+    if (this.activeTab.expandedCards.has(cardIndex)) {
+      this.activeTab.expandedCards.delete(cardIndex);
+    } else {
+      this.activeTab.expandedCards.add(cardIndex);
+    }
+  }
+
+  isCardExpanded(cardIndex: number): boolean {
+    return this.activeTab?.expandedCards?.has(cardIndex) || false;
+  }
+
+  // Keyboard Shortcuts
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    // Ctrl/Cmd + K: Command Palette
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      this.showCommandPalette = !this.showCommandPalette;
+    }
+
+    // Ctrl/Cmd + N: New Note
+    if ((event.ctrlKey || event.metaKey) && event.key === 'n') {
+      event.preventDefault();
+      this.addTab();
+    }
+
+    // Ctrl/Cmd + 1-9: Switch Tabs
+    if ((event.ctrlKey || event.metaKey) && event.key >= '1' && event.key <= '9') {
+      event.preventDefault();
+      const index = parseInt(event.key) - 1;
+      if (index < this.tabs.length) {
+        this.activeTabId = this.tabs[index].id;
+      }
+    }
+
+    // Escape: Close Command Palette
+    if (event.key === 'Escape') {
+      this.showCommandPalette = false;
+    }
+  }
+
+  executeCommand(command: string): void {
+    switch (command) {
+      case 'new-note':
+        this.addTab();
+        break;
+      case 'toggle-theme':
+        this.toggleDarkMode();
+        break;
+      case 'logout':
+        this.logout();
+        break;
+    }
+    this.showCommandPalette = false;
   }
 }
