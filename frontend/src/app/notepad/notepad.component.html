@@ -1,20 +1,41 @@
 <div class="app-container">
-    <nav class="top-nav">
+    <nav class="top-nav glass">
         <div class="nav-brand">
             <div class="brand-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-                        fill="white" />
+                        fill="currentColor" />
                 </svg>
             </div>
             <div class="brand-text">
-                <h1>AI Notepad Assistant</h1>
+                <h1 class="gradient-text">AI Notepad Assistant</h1>
                 <p>Transform your ideas into actionable plans</p>
             </div>
         </div>
         <div class="auth-controls">
+            <!-- Dark Mode Toggle -->
+            <button class="icon-btn" (click)="toggleDarkMode()" title="Toggle Dark Mode">
+                <svg *ngIf="!isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg *ngIf="isDarkMode" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+
             <div class="user-profile" *ngIf="user">
+                <div class="user-avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
                 <span class="username">{{ user.username }}</span>
                 <button class="logout-btn" (click)="logout()" title="Logout">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -32,8 +53,8 @@
     <div class="toolbar">
         <!-- Tab Strip -->
         <div class="tab-strip">
-            <div class="tab-item" *ngFor="let tab of tabs" [class.active]="tab.id === activeTabId"
-                (click)="selectTab(tab.id)">
+            <div class="tab-item animate-slide-in" *ngFor="let tab of tabs; let i = index"
+                [class.active]="tab.id === activeTabId" (click)="selectTab(tab.id)">
 
                 <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)" class="tab-title">
                     {{ tab.title }}
@@ -46,7 +67,7 @@
                     ×
                 </button>
             </div>
-            <button class="add-tab-btn" (click)="addTab()" title="New Note">
+            <button class="add-tab-btn" (click)="addTab()" title="New Note (Ctrl+N)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -59,7 +80,7 @@
 
     <main class="main-grid" *ngIf="activeTab">
         <!-- Left Column: Your Notes -->
-        <section class="section-card input-section">
+        <section class="section-card input-section glass">
             <div class="section-header">
                 <div class="section-icon red-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -81,11 +102,29 @@
                     placeholder="• Fix leaky bathroom faucet&#10;• Plan birthday party for mom&#10;• Learn Spanish basics&#10;• Organize garage this weekend..."
                     spellcheck="false">
                 </textarea>
+                <div class="editor-stats">
+                    <span class="stat-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        {{ getWordCount() }} words
+                    </span>
+                    <span class="stat-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        {{ getCharCount() }} characters
+                    </span>
+                </div>
             </div>
         </section>
 
         <!-- Right Column: AI Solutions -->
-        <section class="section-card output-section">
+        <section class="section-card output-section glass">
             <div class="section-header">
                 <div class="section-icon purple-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -103,17 +142,28 @@
             <div class="results-container">
                 <!-- Loading State -->
                 <div *ngIf="isLoading" class="loading-state">
-                    <div class="spinner"></div>
+                    <div class="modern-spinner">
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                        <div class="spinner-ring"></div>
+                    </div>
                     <p>Generating solutions...</p>
                 </div>
 
                 <!-- Empty State -->
                 <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <path
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                        </path>
+                    </svg>
                     <p>Start typing notes to see AI suggestions here.</p>
                 </div>
 
                 <!-- Result Cards -->
-                <div *ngFor="let result of activeTab.results" class="solution-card">
+                <div *ngFor="let result of activeTab.results; let i = index" class="solution-card animate-fade-in"
+                    [class.expanded]="isCardExpanded(i)">
                     <div class="card-header">
                         <div class="card-icon">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -130,9 +180,25 @@
                                 {{ result.solution.length }} actionable steps
                             </span>
                         </div>
+                        <div class="card-actions">
+                            <button class="icon-btn-sm" (click)="copySolution(result)" title="Copy to clipboard">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <button class="icon-btn-sm" (click)="toggleCardExpansion(i)" title="Expand/Collapse">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    [class.rotated]="isCardExpanded(i)">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="card-body">
+                    <div class="card-body" [class.collapsed]="!isCardExpanded(i)">
                         <ul>
                             <li *ngFor="let step of result.solution">
                                 <span class="bullet-point"></span>
@@ -144,4 +210,42 @@
             </div>
         </section>
     </main>
+
+    <!-- Command Palette -->
+    <div class="command-palette-overlay" *ngIf="showCommandPalette" (click)="showCommandPalette = false">
+        <div class="command-palette glass" (click)="$event.stopPropagation()">
+            <div class="command-palette-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <span>Quick Actions</span>
+                <kbd>Esc</kbd>
+            </div>
+            <div class="command-list">
+                <button class="command-item" (click)="executeCommand('new-note')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>New Note</span>
+                    <kbd>Ctrl+N</kbd>
+                </button>
+                <button class="command-item" (click)="executeCommand('toggle-theme')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span>Toggle Theme</span>
+                </button>
+                <button class="command-item" (click)="executeCommand('logout')" *ngIf="user">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
