@@ -24,7 +24,8 @@ public class MockAiClient implements AiClient {
         return List.of(new NoteResponse(
                 noteContent,
                 "Mock Smart Analysis",
-                generateMockSolution(noteContent)
+                generateMockSolution(noteContent),
+                generateMockTags(noteContent)
         ));
     }
 
@@ -45,5 +46,19 @@ public class MockAiClient implements AiClient {
                 "Propose a scalable architecture.",
                 "Implement proof of concept."
         );
+    }
+
+    private List<String> generateMockTags(String content) {
+        String lower = content.toLowerCase();
+        java.util.List<String> tags = new java.util.ArrayList<>();
+        tags.add("AI Generated");
+        
+        if (lower.contains("shopping") || lower.contains("buy")) tags.add("Shopping");
+        if (lower.contains("meeting") || lower.contains("schedule")) tags.add("Work");
+        if (lower.contains("urgent") || lower.contains("asap")) tags.add("Urgent");
+        if (lower.contains("idea") || lower.contains("plan")) tags.add("Ideas");
+        
+        if (tags.size() == 1) tags.add("General");
+        return tags;
     }
 }
