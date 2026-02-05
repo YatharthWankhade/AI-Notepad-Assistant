@@ -54,5 +54,25 @@ public class NoteController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userRepository.findById(userDetails.getId()).orElse(null);
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<Note> saveNote(@PathVariable Long id, @RequestBody NoteRequest request) {
+        User user = getCurrentUser();
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(noteService.saveNote(id, request.getContent(), user));
+    }
+    
+    @PostMapping("/save")
+    public ResponseEntity<Note> createNote(@RequestBody NoteRequest request) {
+        User user = getCurrentUser();
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(noteService.saveNote(null, request.getContent(), user));
+    }
+
+    @PostMapping("/group")
+    public ResponseEntity<List<Note>> groupNotes() {
+        User user = getCurrentUser();
+        if (user == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(noteService.autoGroupNotes(user));
+    }
 }
 
