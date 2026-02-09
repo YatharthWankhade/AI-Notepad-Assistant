@@ -27,8 +27,16 @@ public class Note {
     @Column(columnDefinition = "TEXT")
     private String aiResponseJson;
 
+    @ElementCollection
+    @CollectionTable(name = "note_tags", joinColumns = @JoinColumn(name = "note_id"))
+    @Column(name = "tag")
+    private java.util.List<String> tags = new java.util.ArrayList<>();
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "category")
+    private String category;
 
     @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
