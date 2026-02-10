@@ -7,4 +7,5 @@ export interface NoteResponse {
     originalPoint: string;
     title: string;
     solution: string[];
+    tags?: string[];
 }
