@@ -50,166 +50,233 @@
         </div>
     </nav>
 
-    <div class="toolbar">
-        <!-- Tab Strip -->
-        <div class="tab-strip">
-            <div class="tab-item animate-slide-in" *ngFor="let tab of tabs; let i = index"
-                [class.active]="tab.id === activeTabId" (click)="selectTab(tab.id)">
-
-                <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)" class="tab-title">
-                    {{ tab.title }}
-                </span>
-                <input *ngIf="tab.isEditingTitle" class="tab-rename-input" [(ngModel)]="tab.title"
-                    (blur)="finishRenaming(tab)" (keyup.enter)="finishRenaming(tab)" autoFocus>
-
-                <button class="close-tab-btn" *ngIf="tabs.length > 1" (click)="closeTab($event, tab.id)"
-                    title="Close Note">
-                    ×
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar glass" [class.collapsed]="isSidebarCollapsed">
+            <div class="sidebar-header">
+                <button class="icon-btn-sm toggle-sidebar-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="search-box" *ngIf="!isSidebarCollapsed">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" placeholder="Search..." [(ngModel)]="searchTerm">
+                </div>
+                <!-- Hide Add btn if collapsed (or change style, hiding for simplicity) -->
+                <button class="add-note-btn" (click)="addTab()" title="New Note (Ctrl+N)" *ngIf="!isSidebarCollapsed">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
                 </button>
             </div>
-            <button class="add-tab-btn" (click)="addTab()" title="New Note (Ctrl+N)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                New Note
-            </button>
-        </div>
-    </div>
 
-    <main class="main-grid" *ngIf="activeTab">
-        <!-- Left Column: Your Notes -->
-        <section class="section-card input-section glass">
-            <div class="section-header">
-                <div class="section-icon red-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 19l7-7 3 3-7 7-3-3z" />
-                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-                        <path d="M2 2l7.586 7.586" />
-                        <circle cx="11" cy="11" r="2" />
-                    </svg>
-                </div>
-                <div>
-                    <h2>Your Notes</h2>
-                    <p>Write your tasks and ideas using bullet points (•) and watch AI transform them.</p>
-                </div>
-            </div>
-
-            <div class="editor-container">
-                <textarea [(ngModel)]="activeTab.content" (ngModelChange)="onNoteChange($event)"
-                    placeholder="• Fix leaky bathroom faucet&#10;• Plan birthday party for mom&#10;• Learn Spanish basics&#10;• Organize garage this weekend..."
-                    spellcheck="false">
-                </textarea>
-                <div class="editor-stats">
-                    <span class="stat-item">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        {{ getWordCount() }} words
-                    </span>
-                    <span class="stat-item">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                        {{ getCharCount() }} characters
-                    </span>
-                </div>
-            </div>
-        </section>
-
-        <!-- Right Column: AI Solutions -->
-        <section class="section-card output-section glass">
-            <div class="section-header">
-                <div class="section-icon purple-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path
-                            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                    </svg>
-                </div>
-                <div>
-                    <h2>AI Solutions</h2>
-                    <p>Smart, personalized action plans generated just for you.</p>
-                </div>
-            </div>
-
-            <div class="results-container">
-                <!-- Loading State -->
-                <div *ngIf="isLoading" class="loading-state">
-                    <div class="modern-spinner">
-                        <div class="spinner-ring"></div>
-                        <div class="spinner-ring"></div>
-                        <div class="spinner-ring"></div>
-                    </div>
-                    <p>Generating solutions...</p>
-                </div>
-
-                <!-- Empty State -->
-                <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.5">
-                        <path
-                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
-                        </path>
-                    </svg>
-                    <p>Start typing notes to see AI suggestions here.</p>
-                </div>
-
-                <!-- Result Cards -->
-                <div *ngFor="let result of activeTab.results; let i = index" class="solution-card animate-fade-in"
-                    [class.expanded]="isCardExpanded(i)">
-                    <div class="card-header">
-                        <div class="card-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path
-                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                </path>
+            <div class="sidebar-content">
+                <div class="category-group" *ngFor="let cat of categories">
+                    <div class="category-header">{{ cat }}</div>
+                    <div class="note-item" *ngFor="let tab of getFilteredNotes(cat)"
+                        [class.active]="tab.id === activeTabId" (click)="selectTab(tab.id)">
+                        <div class="note-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
                             </svg>
                         </div>
-                        <div class="card-title-lockup">
-                            <h3>{{ result.title }}</h3>
-                            <span class="actionable-steps">
-                                {{ result.solution.length }} actionable steps
-                            </span>
-                        </div>
-                        <div class="card-actions">
-                            <button class="icon-btn-sm" (click)="copySolution(result)" title="Copy to clipboard">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                            </button>
-                            <button class="icon-btn-sm" (click)="toggleCardExpansion(i)" title="Expand/Collapse">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    [class.rotated]="isCardExpanded(i)">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card-body" [class.collapsed]="!isCardExpanded(i)">
-                        <ul>
-                            <li *ngFor="let step of result.solution">
-                                <span class="bullet-point"></span>
-                                {{ step }}
-                            </li>
-                        </ul>
+                        <span *ngIf="!tab.isEditingTitle" (dblclick)="startRenaming(tab)" class="note-title">{{
+                            tab.title }}</span>
+                        <input *ngIf="tab.isEditingTitle" class="note-rename-input" [(ngModel)]="tab.title"
+                            (blur)="finishRenaming(tab)" (keyup.enter)="finishRenaming(tab)" autoFocus>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+
+            <div class="sidebar-footer">
+                <button class="organize-btn" (click)="organizeNotes()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Auto-Organize
+                </button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="toolbar glass">
+                <div class="toolbar-actions">
+                    <button class="action-btn primary" (click)="analyzeCurrentNote()" [disabled]="isLoading">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                        </svg>
+                        Analyze with AI
+                    </button>
+                    <button class="action-btn" (click)="saveCurrentNote()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <div class="scroll-container" *ngIf="activeTab">
+                <main class="main-grid">
+                    <!-- Left Column: Your Notes -->
+                    <section class="section-card input-section glass">
+                        <div class="section-header">
+                            <div class="section-icon red-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                                    <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                                    <path d="M2 2l7.586 7.586" />
+                                    <circle cx="11" cy="11" r="2" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>Your Notes</h2>
+                                <p>Write your tasks and ideas using bullet points (•) and watch AI transform them.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="editor-container">
+                            <textarea [(ngModel)]="activeTab.content" (ngModelChange)="onNoteChange($event)"
+                                placeholder="• Fix leaky bathroom faucet&#10;• Plan birthday party for mom&#10;• Learn Spanish basics&#10;• Organize garage this weekend..."
+                                spellcheck="false">
+                </textarea>
+                            <div class="editor-stats">
+                                <span class="stat-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                    </svg>
+                                    {{ getWordCount() }} words
+                                </span>
+                                <span class="stat-item">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                    </svg>
+                                    {{ getCharCount() }} characters
+                                </span>
+
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <!-- Right Column: AI Solutions -->
+                    <section class="section-card output-section glass">
+                        <div class="section-header">
+                            <div class="section-icon purple-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h2>AI Solutions & Tags</h2>
+                                <p>Smart, personalized action plans generated just for you.</p>
+                            </div>
+                        </div>
+
+                        <div class="results-container">
+                            <!-- Loading State -->
+                            <div *ngIf="isLoading" class="loading-state">
+                                <div class="modern-spinner">
+                                    <div class="spinner-ring"></div>
+                                    <div class="spinner-ring"></div>
+                                    <div class="spinner-ring"></div>
+                                </div>
+                                <p>Generating solutions...</p>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div *ngIf="!activeTab.results.length && !isLoading" class="empty-state">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.5">
+                                    <path
+                                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z">
+                                    </path>
+                                </svg>
+                                <p>Start typing notes to see AI suggestions here.</p>
+                            </div>
+
+                            <!-- Result Cards -->
+                            <div *ngFor="let result of activeTab.results; let i = index"
+                                class="solution-card animate-fade-in" [class.expanded]="isCardExpanded(i)">
+                                <div class="card-header">
+                                    <div class="card-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                            <path
+                                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="card-title-lockup">
+                                        <h3>{{ result.title }}</h3>
+                                        <span class="actionable-steps">
+                                            {{ result.solution.length }} actionable steps
+                                        </span>
+                                        <div class="tags-container" *ngIf="result.tags && result.tags.length">
+                                            <span class="tag" *ngFor="let tag of result.tags">{{ tag }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-actions">
+                                        <button class="icon-btn-sm" (click)="copySolution(result)"
+                                            title="Copy to clipboard">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1">
+                                                </path>
+                                            </svg>
+                                        </button>
+                                        <button class="icon-btn-sm" (click)="toggleCardExpansion(i)"
+                                            title="Expand/Collapse">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round" [class.rotated]="isCardExpanded(i)">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="card-body" [class.collapsed]="!isCardExpanded(i)">
+                                    <ul>
+                                        <li *ngFor="let step of result.solution">
+                                            <span class="bullet-point"></span>
+                                            {{ step }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div> <!-- End scroll-container -->
+        </main> <!-- End content-area -->
+    </div> <!-- End main-layout -->
 
     <!-- Command Palette -->
     <div class="command-palette-overlay" *ngIf="showCommandPalette" (click)="showCommandPalette = false">
