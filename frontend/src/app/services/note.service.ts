@@ -16,6 +16,18 @@ export class NoteService {
         return this.http.post<NoteResponse[]>(`${this.apiUrl}/analyze`, request);
     }
 
+    saveNote(content: string): Observable<any> {
+        return this.http.post<any>(`${this.apiUrl}/save`, { content });
+    }
+
+    updateNote(id: number, content: string): Observable<any> {
+        return this.http.put<any>(`${this.apiUrl}/${id}`, { content });
+    }
+
+    groupNotes(): Observable<any[]> {
+        return this.http.post<any[]>(`${this.apiUrl}/group`, {});
+    }
+
     getUserNotes(): Observable<any[]> {
         return this.http.get<any[]>(this.apiUrl);
     }
